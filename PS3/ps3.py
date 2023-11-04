@@ -214,33 +214,53 @@ def is_valid_word(word, hand, word_list):
     """
 
     letter_check = 0
+    
+    copy_hand = hand.copy()
 
     # check to see if any word can be made by replacing the * with a vowel
     if "*" in word:
+        # replace vowel with *
         for vowel in VOWELS:
-            replaced_word = word.replace("*", vowel)
-            if replaced_word.lower() in word_list:
-                break
-            else:
-                replaced_word = word.replace(vowel, "*")
-        for letter in replaced_word.lower():
-            if letter in hand:
-                letter_check += 1
-        if letter_check != len(replaced_word):
-            return False
-
-    
-    elif word.lower() in word_list:
-        for letter in word.lower():
-            if letter in hand:
-                letter_check += 1
-        if letter_check != len(word):
-            return False
-    else:
+            # reset the temp word for checking with a new vowel
+            temp_word = ""
+            temp_word = word.replace("*", vowel)
+            # if vowel replace results in a valid word, check that every letter was available in hand. If no valid word could be formed with any vowel, return false
+            if temp_word.lower() in word_list:
+                # if the replaced star with vowem actually turns into a valid word, make it permanent
+                replaced_word = temp_word
+                # returns the value of the item or the default value. So if letter already exists in hand, it will give the value of the hand and add 1 to it. Otherwise by default, it will take value as 0 and add 1 to it. 0 default and not 1 because it has to add 1 even if the value is found
+                copy_hand[vowel] = copy_hand.get(vowel, 0) + 1
+                for letter in replaced_word.lower():
+                    if letter in copy_hand:
+                        letter_check += 1
+                        # to make sure that if one e is available, only one e is used from hand and then reduced or removed if 0
+                        copy_hand[letter] -= 1
+                        if copy_hand[letter] == 0:
+                            copy_hand.pop(letter)
+                # if all letters were available in hand, return True else False 
+                if letter_check == len(replaced_word):
+                    return True
+                else:
+                    return False
+        # if during all the vowel replacements, no valid word could be formed to enter inner if, end the loop and return False. To check for hand is done inside after word check already
         return False
     
-    # if it entered the conditional of being in the wordlist and matched all letters in hand, it will come here. if it didn't match hand, it will go to the conditional inside wordlist match
-    return True
+    # for non star word that is a valid word from wordlist
+    elif word.lower() in word_list:
+        for letter in word.lower():
+            if letter in copy_hand:
+                letter_check += 1
+                copy_hand[letter] -= 1
+                if copy_hand[letter] == 0:
+                    copy_hand.pop(letter)
+        if letter_check == len(word):
+            return True
+        else:
+            return False
+        
+    # if word doesn't have a star for special checking or is a non star word that isn't a valid word from wordlist, return False
+    else:
+        return False
 
 #
 # Problem #5: Playing a hand
