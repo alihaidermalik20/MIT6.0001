@@ -70,7 +70,8 @@ class Message(object):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        self.message_text = text
+        self.valid_words = load_words(WORDLIST_FILENAME)
 
     def get_message_text(self):
         '''
@@ -78,7 +79,7 @@ class Message(object):
         
         Returns: self.message_text
         '''
-        pass #delete this line and replace with your code here
+        return self.message_text
 
     def get_valid_words(self):
         '''
@@ -87,8 +88,8 @@ class Message(object):
         
         Returns: a COPY of self.valid_words
         '''
-        pass #delete this line and replace with your code here
-
+        return self.valid_words.copy()
+    
     def build_shift_dict(self, shift):
         '''
         Creates a dictionary that can be used to apply a cipher to a letter.
@@ -103,7 +104,35 @@ class Message(object):
         Returns: a dictionary mapping a letter (string) to 
                  another letter (string). 
         '''
-        pass #delete this line and replace with your code here
+        
+        if shift >= 0 and shift < 26:
+            mapping_dict = {}
+            lower_case_alphabets = string.ascii_lowercase
+            upper_case_alphabets = string.ascii_uppercase
+            lower_case_hex_lower_bound = ord(lower_case_alphabets[0])
+            lower_case_hex_upper_bound = ord(lower_case_alphabets[-1])
+            upper_case_hex_lower_bound = ord(upper_case_alphabets[0])
+            upper_case_hex_upper_bound = ord(upper_case_alphabets[-1])
+            # pair will be a and A, b and B ...
+            for alphabet in lower_case_alphabets:
+                if ord(alphabet) + shift > lower_case_hex_upper_bound:
+                    # this ensures that it loops around. So if you want letter Y at hex 89 to shift by 2: 65-90+2+89-1=65 which is an A. So it shifts 2 places from Y to Z to A
+                    shifted_alphabet = chr(lower_case_hex_lower_bound-lower_case_hex_upper_bound+shift+ord(alphabet)-1)
+                else:
+                    shifted_alphabet = chr(ord(alphabet)+shift)
+                mapping_dict[alphabet] = shifted_alphabet
+                    
+            for alphabet in upper_case_alphabets:
+                if ord(alphabet) + shift > upper_case_hex_upper_bound:
+                    # this ensures that it loops around. So if you want letter Y at hex 89 to shift by 2: 65-90+2+89-1=65 which is an A. So it shifts 2 places from Y to Z to A
+                    shifted_alphabet = chr(upper_case_hex_lower_bound-upper_case_hex_upper_bound+shift+ord(alphabet)-1)
+                else:
+                    shifted_alphabet = chr(ord(alphabet)+shift)
+                mapping_dict[alphabet] = shifted_alphabet
+            
+            return mapping_dict
+        else:
+            return "shift should be in between 0 and 26"
 
     def apply_shift(self, shift):
         '''
